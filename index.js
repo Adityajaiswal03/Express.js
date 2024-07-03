@@ -2,6 +2,7 @@ const express= require('express');
 const app = express();
 
 app.use(express.json());
+app.use(middleware);
 
 let courses=[
     {"id":"1", "name":'java'},
@@ -12,6 +13,8 @@ let courses=[
 app.get('/courses', (req, res)=>{
     res.json(courses);
 })
+
+
 
 app.post('/courses', (req, res)=>{
     console.log(req.body);
@@ -37,5 +40,21 @@ app.delete('/courses/:id', (req, res)=>{
     courses.splice(index, 1);
     res.send(course);
 });
+
+function middleware(req, res, next) {
+    console.log("called");
+    console.log(req.hostname);
+    console.log(req.ip);
+    console.log(req.method);
+    console.log(req.url);
+    console.log(new Date());
+    next();
+}
+/**
+ * logger 
+ * method,ip,hostname,date
+ * put call update id 1 to spurng 
+ * delete call delete id 2
+ */
 
 app.listen(3000, ()=>console.log('listening on port 3000...'));
