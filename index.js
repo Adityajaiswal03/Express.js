@@ -1,75 +1,116 @@
 const express= require('express');
 const mongoose= require('mongoose');
-require("dotenv").config();
+const fs = require("fs").promises;
+// require("dotenv").config();
 
-const userName = process.env.UserName;
+// const userName = process.env.UserName;
 
-mongoose.connect(`${userName}`)
-.then(()=>{
-    console.log('Connected to MongoDB...')
-}).catch((err)=>{
-    console.log('Could not connect to MongoDB...', err)
-});
+// mongoose.connect(`${userName}`)
+// .then(()=>{
+//     console.log('Connected to MongoDB...')
+// }).catch((err)=>{
+//     console.log('Could not connect to MongoDB...', err)
+// });
 
 const app = express();
 
 app.use(express.json());
 
 
-const productScheme = new mongoose.Schema({
-    product_name: {
-        type: String,
-        required: true
-    },
-    product_price:{
-        type: String,
-        required: true
-    },
-    // isInStock:{
-    //     type: String,
-    //     required: true
-    // },
-    Category:{
-        type: String,
-        required: true
+// const productScheme = new mongoose.Schema({
+//     product_name: {
+//         type: String,
+//         required: true
+//     },
+//     product_price:{
+//         type: String,
+//         required: true
+//     },
+//     // isInStock:{
+//     //     type: String,
+//     //     required: true
+//     // },
+//     Category:{
+//         type: String,
+//         required: true
     
+//     }
+// });
+
+// const productModel = mongoose.model('products', productScheme);
+
+// app.post('/api/products', async (req, res)=>{
+//     productModel.create({
+//         product_name:req.body.product_name,
+//         product_price:req.body.product_price,
+//         isInStock:req.body.isInStock,
+//         Category:req.body.Category
+//         }
+//     );
+//     return res.status(201).json({message:"Product Created"});
+// });
+
+
+let courses = [];
+
+const filename = "Course.txt";
+readDataFromFile(filename);
+async function readDataFromFile(filename) {
+    try {
+        const data = await fs.readFile(filename, { encoding: "utf8" });
+
+        // Split data by lines assuming each line is a JSON object
+        const jsonObjects = data.trim().split("\n");
+
+
+        // Parse each JSON object and store in courses array
+        courses = jsonObjects
+            .map((jsonString) => {
+                try {
+                    return JSON.parse(jsonString);
+                } catch (error) {
+                    console.error("Error parsing JSON:", error);
+                    return null;
+                }
+            })
+            .filter((obj) => obj !== null); // Filter out any failed parses
+
+        console.log("Data loaded successfully:", courses);
+    } catch (error) {
+        console.error("Error reading file:", error);
     }
-});
-
-const productModel = mongoose.model('products', productScheme);
-
-app.post('/api/products', async (req, res)=>{
-    productModel.create({
-        product_name:req.body.product_name,
-        product_price:req.body.product_price,
-        isInStock:req.body.isInStock,
-        Category:req.body.Category
-        }
-    );
-    return res.status(201).json({message:"Product Created"});
-});
+}
 
 
-let courses = [
-    { id: "1", name: "java" },
-    { id: "2", name: "javascript" },
-    { id: "3", name: "python" },
-];
 
 app.get('/courses', (req, res)=>{
     res.json(courses);
 })
 
+async function writeDataToFile(filename, data) {
+    try {
+        const jsonStrings = data.map((obj) => JSON.stringify(obj));
+        const jsonString = jsonStrings.join("\n");
+        await fs.writeFile(filename, jsonString, "utf8");
+        console.log("Data written to file successfully.");
+    } catch (error) {
+        console.error("Error writing to file:", error);
+        throw error; 
+    }
+}
 
 
-app.post('/courses', (req, res)=>{
-    console.log(req.body);
-    const course={
-        "id": (courses.length + 1).toString(),
-        "name": req.body.name
-    };
-    courses.push(course);
-    res.send(course);
+app.post("/courses", async (req, res) => {
+    const newCourse = req.body;
+    console.log("New course:", newCourse);
+    try {
+        courses.push(newCourse);
+        await writeDataToFile(filename, courses); 
+        res.status(201).json(newCourse); 
+    } catch (error) {
+        console.error("Error adding course:", error);
+        res.status(500).send("Error adding course");
+    }
 });
 
 app.put('/courses/:id', (req, res)=>{
