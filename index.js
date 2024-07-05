@@ -14,7 +14,7 @@ mongoose.connect(`${userName}`)
 const app = express();
 
 app.use(express.json());
-app.use(middleware);
+
 
 const productScheme = new mongoose.Schema({
     product_name: {
@@ -25,10 +25,10 @@ const productScheme = new mongoose.Schema({
         type: String,
         required: true
     },
-    isInStock:{
-        type: Boolean,
-        required: true
-    },
+    // isInStock:{
+    //     type: String,
+    //     required: true
+    // },
     Category:{
         type: String,
         required: true
@@ -36,7 +36,19 @@ const productScheme = new mongoose.Schema({
     }
 });
 
-const productModel = mongoose.model('Product', productScheme);
+const productModel = mongoose.model('products', productScheme);
+
+app.post('/api/products', async (req, res)=>{
+    productModel.create({
+        product_name:req.body.product_name,
+        product_price:req.body.product_price,
+        isInStock:req.body.isInStock,
+        Category:req.body.Category
+        }
+    );
+    return res.status(201).json({message:"Product Created"});
+});
+
 
 let courses = [
     { id: "1", name: "java" },
