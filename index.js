@@ -16,6 +16,27 @@ const app = express();
 app.use(express.json());
 app.use(middleware);
 
+const productScheme = new mongoose.Schema({
+    product_name: {
+        type: String,
+        required: true
+    },
+    product_price:{
+        type: String,
+        required: true
+    },
+    isInStock:{
+        type: Boolean,
+        required: true
+    },
+    Category:{
+        type: String,
+        required: true
+    
+    }
+});
+
+
 let courses = [
     { id: "1", name: "java" },
     { id: "2", name: "javascript" },
