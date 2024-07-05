@@ -1,13 +1,25 @@
 const express= require('express');
+const mongoose= require('mongoose');
+require("dotenv").config();
+
+const userName = process.env.UserName;
+
+mongoose.connect(`${userName}`)
+.then(()=>{
+    console.log('Connected to MongoDB...')
+}).catch((err)=>{
+    console.log('Could not connect to MongoDB...', err)
+});
+
 const app = express();
 
 app.use(express.json());
 app.use(middleware);
 
-let courses=[
-    {"id":"1", "name":'java'},
-    {"id":"2", "name":'javascript'},
-    {"id":"3", "name":'python'}
+let courses = [
+    { id: "1", name: "java" },
+    { id: "2", name: "javascript" },
+    { id: "3", name: "python" },
 ];
 
 app.get('/courses', (req, res)=>{
@@ -43,12 +55,6 @@ app.delete('/courses/:id', (req, res)=>{
 
 function middleware(req, res, next) {
     console.log("called");
-    console.log(req.hostname);
-    console.log(req.ip);
-    console.log(req.method);
-    console.log(req.url);
-    console.log(new Date());
-    console.log(res.statusCode);
     next();
 }
 /**
