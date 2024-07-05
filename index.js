@@ -36,6 +36,7 @@ const productScheme = new mongoose.Schema({
     }
 });
 
+const productModel = mongoose.model('Product', productScheme);
 
 let courses = [
     { id: "1", name: "java" },
